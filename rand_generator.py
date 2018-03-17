@@ -1,9 +1,10 @@
 import numpy as np
 import pickle
+import matplotlib.pyplot as plt
 
 N = 5000
-Pa = 0.003 #probability of anomaly happening
-set = []
+Pa = 0 #probability of anomaly happening
+set = [None]*N
 
 for i in range(N):
     # values of sigma
@@ -17,9 +18,8 @@ for i in range(N):
 
     ampl = np.random.normal(1, s1)
     freq = np.random.normal(10, s2)
-    xi = np.sin(np.linspace(1, 0.0001, 2) * freq) * ampl
-    set.append(xi)
+    xi = np.sin(np.linspace(1, 100, num=1000) * freq) * ampl
+    set[i] = (xi)
 
-
-with open('trainingset.pkl', 'rb') as f:
- pickle.dump(set, f)
+print(np.size(set))
+pickle.dump(set, open('trainingset.pkl', "wb"))
