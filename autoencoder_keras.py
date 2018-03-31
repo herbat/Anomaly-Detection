@@ -24,11 +24,10 @@ def makeModel():
     return model
 
 
-#load or create model
+# load or create model
 autoencoder = load_model('autoenc1.h5') if load else makeModel()
-
-
 autoencoder.compile(loss='mean_squared_error', optimizer='adadelta', metrics=['accuracy'])
+
 start = time.time()
 
 if train:
@@ -41,9 +40,10 @@ if train:
                     validation_data=(eeg_test, eeg_test))
 else:
     eeg_anomaly = np.asarray(pickle.load(open('anomalyset.pkl', 'rb')))
-    autoencoder.test_on_batch(eeg_anomaly, eeg_anomaly)
+    # eeg_anomaly = np.expand_dims(eeg_anomaly[0], axis=0)
+    print(autoencoder.test_on_batch(eeg_anomaly, eeg_anomaly))
 
 
 stop = time.time()
-print(stop - start)
+# print(stop - start)
 autoencoder.save('autoenc1.h5')
