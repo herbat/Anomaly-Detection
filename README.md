@@ -31,5 +31,8 @@ The first test to do is to use an autoencoder and feed it "anomaly data", which 
 
 ### First try: frequency and amplitude change
 
-After the training was done, I ran a test on anomalous recordings. This test was not very successful, the normal test batch showed a constant `0.051` loss while the anomalies showed a varying loss about `0.081`. This means a **60% increase** in loss, but needs 500 recordings to evaluate properly. On single recordings, the loss was sometimes as low as `0.058`. 
+After the training was done, I ran a test on anomalous recordings. This test was very successful, the normal test batch showed a constant `0.051` loss while the anomalies showed a varying loss about `0.381`. 
+In conclusion, the current model can differentiate quite easily between simulated alpha and beta brainwaves.
+
+
 
