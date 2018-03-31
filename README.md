@@ -28,3 +28,8 @@ After this test, I decided to keep using Keras as the main framework for this pr
 ## Anomaly detection 
 
 The first test to do is to use an autoencoder and feed it "anomaly data", which can be anything from a completely different thing or the same sinusoidal waves with little modifications. For this experiment, I will change the frequency and amplitude substantially in anomaly recordings, and in other recordings, insert peaks similar to that of an epileptic brain. 
+
+### First try: frequency and amplitude change
+
+After the training was done, I ran a test on anomalous recordings. This test was not very successful, the normal test batch showed a constant 0.051 loss while the anomalies showed a varying loss about 0.081. This means a 60% increase in loss, but needs 500 recordings to evaluate properly. On single recordings, the loss was sometimes as low as 0.058. 
+
