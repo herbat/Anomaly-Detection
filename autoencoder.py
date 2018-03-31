@@ -1,5 +1,5 @@
+import time
 import pickle
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data as data
@@ -32,11 +32,11 @@ class AutoEncoder(nn.Module):
         super(AutoEncoder, self).__init__()
         #encoders
         self.enc1 = nn.Linear(1000, 512)
-        self.enc2 = nn.Linear(512, 256)
-        self.enc3 = nn.Linear(256, 128)
+        self.enc2 = nn.Linear(512, 128)
+        self.enc3 = nn.Linear(128, 64)
         # decoders
-        self.dec1 = nn.Linear(128, 256)
-        self.dec2 = nn.Linear(256, 512)
+        self.dec1 = nn.Linear(64, 128)
+        self.dec2 = nn.Linear(128, 512)
         self.dec3 = nn.Linear(512, 1000)
 
     def forward(self, x):
@@ -52,7 +52,7 @@ tset = pickle.load(open('trainingset.pkl', 'rb'))
 dset = EEGData(tset)
 dataloader = data.DataLoader(dset, batch_size = batch, shuffle = True)
 
-#TODO: training the network
+start = time.time()
 for epoch in range(epochs):
     for data in dataloader:
         eeg = data.float()
@@ -67,5 +67,7 @@ for epoch in range(epochs):
         optim.step()
     # ===================log========================
     print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, epochs, loss.data[0]))
+stop = time.time()
+print(stop-start)
 
 torch.save(model.state_dict(), './eeg_autoencoder.pth')
