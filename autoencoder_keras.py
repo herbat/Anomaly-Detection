@@ -5,9 +5,10 @@ import numpy as np
 from keras.layers import Dense
 from keras.models import Sequential, load_model
 
-epochs = 1000
+epochs = 300
 batch_size = 64
-load = False
+load = True
+train = False
 
 def makeModel():
     model = Sequential([
@@ -26,11 +27,23 @@ def makeModel():
 #load or create model
 autoencoder = load_model('autoenc1.h5') if load else makeModel()
 
-eeg_data = np.asarray(pickle.load(open('trainingset.pkl', 'rb')))
 
 autoencoder.compile(loss='mean_squared_error', optimizer='adadelta', metrics=['accuracy'])
 start = time.time()
-autoencoder.fit(eeg_data, eeg_data, epochs=epochs, batch_size=64, shuffle=True)
+
+if train:
+    eeg_train = np.asarray(pickle.load(open('trainingset.pkl', 'rb')))
+    eeg_test = np.asarray(pickle.load(open('testingset.pkl', 'rb')))
+    autoencoder.fit(eeg_train, eeg_train,
+                    epochs=epochs,
+                    batch_size=64,
+                    shuffle=True,
+                    validation_data=(eeg_test, eeg_test))
+else:
+    eeg_anomaly = np.asarray(pickle.load(open('anomalyset.pkl', 'rb')))
+    autoencoder.test_on_batch(eeg_anomaly, eeg_anomaly)
+
+
 stop = time.time()
 print(stop - start)
 autoencoder.save('autoenc1.h5')

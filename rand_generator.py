@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 
-N = 5000
+N = 500
 Pa = 0 #probability of anomaly happening
 set = [None]*N
 
@@ -22,4 +22,4 @@ for i in range(N):
     set[i] = (xi)
 
 print(np.size(set))
-pickle.dump(set, open('trainingset.pkl', "wb"))
+pickle.dump(set, open('testingset.pkl', "wb"))
