@@ -41,3 +41,10 @@ Next, I tried tying the weights of the layers as is a convention in autoencoders
 ### Convolutional architecture
 
 To prepare for more complex datasets, I engineered a model only using convolutional layers. I tried a lot of things, including tied weights, 3 layer deep encoder/decoder, maxpooling and upsampling, but all failed miserably. This led me to keeping it simple, and trying a six-layer convolution only model. While this model wasn't a very good performer, I realized that by adding fewer layers, I can make the learning easier and faster. My final version is a two-layer autoencoder, which is **very** bad at data compression(it actually inflates the data), but is perfectly useful for anomaly detection. The testing dataset had an average of `0.0084` loss, while the anomaly dataset had an average of `0.061` loss, which is a sevenfold increase compared to the normal samples. 
+
+After a bit of tuning, I arrived at the following architecture:
+- 1D convolution, kernel:12, stride:3, channels:16
+- 1D transpose convolution with the same parameters
+- 1D convolution to transform back to the original data shape
+
+This model had an average testing loss of `0.0088`, and anomaly loss of `0.087`, differing by an order of magnitude. Although this could surely be improved, I decided to take on other datasets, and tweak the model according to my findings.
