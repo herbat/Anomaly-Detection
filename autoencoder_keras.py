@@ -7,7 +7,7 @@ import keras.backend as K
 from keras.models import Sequential, load_model, Model
 from keras.layers import *
 
-epochs = 1
+epochs = 5
 batch_size = 64
 load = True
 train = False
@@ -113,8 +113,8 @@ def makeConvModel():
 
     inputs = Input(shape=(1000,))
     x = Reshape((1000,1,1), input_shape=(1000,))(inputs)
-    x = Conv2D(64, (7,1), activation='tanh', strides=3, padding='valid')(x)
-    x = Conv2DTranspose(64, (7,1), activation='tanh', strides=3, padding='valid')(x)
+    x = Conv2D(16, (12,1), activation='tanh', strides=4, padding='valid')(x)
+    x = Conv2DTranspose(16, (12,1), activation='tanh', strides=4, padding='valid')(x)
     x = Lambda(lambda x: x[:, :, 0])(x)
     x = Conv1D(1, 7, activation='tanh', strides=1, padding='same')(x)
     x = Flatten()(x)
@@ -139,7 +139,7 @@ if train:
                     shuffle=True,
                     validation_data=(eeg_test, eeg_test))
 else:
-    eeg_anomaly = np.asarray(pickle.load(open('testingset.pkl', 'rb')))
+    eeg_anomaly = np.asarray(pickle.load(open('anomalyset.pkl', 'rb')))
     # eeg_anomaly = np.expand_dims(eeg_anomaly[0], axis=0)
     print(autoencoder.test_on_batch(eeg_anomaly, eeg_anomaly))
 
@@ -152,4 +152,4 @@ else:
 
 stop = time.time()
 print(stop - start)
-autoencoder.save(fname)
+if train: autoencoder.save(fname)
