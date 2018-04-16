@@ -34,5 +34,10 @@ The first test to do is to use an autoencoder and feed it "anomaly data", which 
 After the training was done, I ran a test on anomalous recordings. This test was very successful, the normal test batch showed a constant `0.051` loss while the anomalies showed a varying loss about `0.381`. 
 In conclusion, the current model can differentiate quite easily between simulated alpha and beta brainwaves.
 
+### Tied weights vs. free weights
 
+Next, I tried tying the weights of the layers as is a convention in autoencoders. This made the model symmetric: the weights of the encoding layers were shared by the decoding layers, which is supposed to make learning faster. My experiments showed that the model learned the with the same speed(relative to epochs), and the computing time wasn't always faster. This might be due to the usage of custom layers for the weight mirroring.
 
+### Convolutional architecture
+
+To prepare for more complex datasets, I engineered a model only using convolutional layers. I tried a lot of things, including tied weights, 3 layer deep encoder/decoder, maxpooling and upsampling, but all failed miserably. This led me to keeping it simple, and trying a six-layer convolution only model. While this model wasn't a very good performer, I realized that by adding fewer layers, I can make the learning easier and faster. My final version is a two-layer autoencoder, which is **very** bad at data compression(it actually inflates the data), but is perfectly useful for anomaly detection. The testing dataset had an average of `0.0084` loss, while the anomaly dataset had an average of `0.061` loss, which is a sevenfold increase compared to the normal samples. 
