@@ -2,11 +2,11 @@ import pickle
 import numpy as np
 import numpy.random as rnd
 import matplotlib.pyplot as plt
-N = 10000  # number of trajectories
+N = 500  # number of trajectories
 D = 150  # expected value of trajectory data points
 SIZE = (200, 200)
-anomalies = False
-anomaly_p = 0.1  # probability of anomaly happening
+anomalies = True
+anomaly_p = 1  # probability of anomaly happening
 
 # updating the vector will be a perfect anomaly(basically random walk)
 
@@ -35,7 +35,7 @@ for i in range(N):
     prev_pos = list(map(sum,zip(s_pos, s_vec)))
     tmp = [s_pos, prev_pos]
     # decide if anomaly or not
-    a = True if anomalies and rnd.uniform() < 0.1 else False
+    a = True if anomalies and rnd.uniform() < anomaly_p else False
     # generate the trajectory
     for j in range(d):
         c_vec = [rnd.normal(s_vec[0], 0.1), rnd.normal(s_vec[1], 0.1)]  # current vector
@@ -47,5 +47,5 @@ for i in range(N):
     collect.append(tmp)
 
 print(np.shape(collect[2]))
-plot_trajectory([collect[453], collect[9832]])
-# pickle.dump(collect, open('trajectory_data/training_rand1.p', 'wb'))
+plot_trajectory([collect[453], collect[92]])
+pickle.dump(collect, open('trajectory_data/anomaly_rand1.p', 'wb'))

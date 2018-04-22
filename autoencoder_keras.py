@@ -1,17 +1,19 @@
 import time
 import pickle
-import random
 import numpy as np
-import tensorflow as tf
 import keras.backend as K
-from keras.models import Sequential, load_model, Model
+import matplotlib.pyplot as plt
 from keras.layers import *
+from keras.models import load_model, Model
 
-epochs = 5
+epochs = 1
 batch_size = 64
 load = True
 train = False
-fname = "convAE.h5"
+model_fname = 'rnnAE.h5'
+train_fname = 'trajectory_data/training_rand1.p'
+test_fname  = 'trajectory_data/testing_rand1.p'
+anom_fname  = 'trajectory_data/anomaly_rand1.p'
 
 
 class DenseTranspose(Layer):
@@ -88,7 +90,21 @@ class DenseTranspose(Layer):
         return dict(list(base_config.items()) + list(config.items()))
 
 
-def makeDenseModel():
+def intermediate_loss(x):
+    return K.mean(K.square(x[0] - x[1] + 1000), axis=-1)
+
+
+def generator(from_list_x):
+
+    total_size = len(from_list_x)
+
+    while True:
+
+        for i in range(0,total_size):
+            yield np.expand_dims(np.array(from_list_x[i]), axis=0), np.array([0])
+
+
+def make_dense_model():
     inputs = Input(shape=(1000,))
     e1 = Dense(units=512, activation='tanh')
     e2 = Dense(units=128, activation='tanh')
@@ -109,7 +125,7 @@ def makeDenseModel():
     return Model(inputs, x)
 
 
-def makeConvModel():
+def make_conv_model():
 
     inputs = Input(shape=(1000,))
     x = Reshape((1000,1,1), input_shape=(1000,))(inputs)
@@ -121,35 +137,60 @@ def makeConvModel():
     return Model(inputs, x)
 
 
+def make_rnn_model():
+
+    inputs = Input(shape=(None, 2))
+    gru = GRU(units=128)(inputs)
+    x = Reshape((128, 1, 1), input_shape=(128,))(gru)
+    x = Conv2D(16, (12, 1), activation='tanh', strides=4, padding='valid')(x)
+    x = Conv2DTranspose(16, (12, 1), activation='tanh', strides=4, padding='valid')(x)
+    x = Lambda(lambda x: x[:, :, 0])(x)
+    x = Conv1D(1, 7, activation='tanh', strides=1, padding='same')(x)
+    x = Flatten()(x)
+    x = Lambda(intermediate_loss, output_shape=(1, ), name='in_loss')([gru, x])
+    return Model(inputs, x)
+
+
+def plot_trajectory(_c):
+    for t in _c:
+        x = []
+        y = []
+        for i, j in t:
+            x.append(i)
+            y.append(j)
+        plt.plot(x, y)
+
+    plt.axis([0, 200, 0, 200])
+    plt.show()
+
+
 # load or create model
 # autoencoder = makeDenseModel()
 # if load: autoencoder.load_weights(fname)
-autoencoder = load_model(fname) if load else makeConvModel()
-autoencoder.compile(loss='mean_squared_error', optimizer='adadelta', metrics=['accuracy'])
-eeg_train = np.asarray(pickle.load(open('trainingset.pkl', 'rb')))
+autoencoder = load_model(model_fname, custom_objects={'<lambda>': lambda y_true, y_pred: y_pred}) if load else make_rnn_model()
+autoencoder.compile(loss={'in_loss': lambda y_true, y_pred: y_pred}, optimizer='adadelta', metrics=['accuracy'])
 start = time.time()
 
-
 if train:
-    eeg_train = np.asarray(pickle.load(open('trainingset.pkl', 'rb')))
-    eeg_test = np.asarray(pickle.load(open('testingset.pkl', 'rb')))
-    autoencoder.fit(eeg_train, eeg_train,
-                    epochs=epochs,
-                    batch_size=64,
-                    shuffle=True,
-                    validation_data=(eeg_test, eeg_test))
+    training = pickle.load(open(test_fname, 'rb'))
+    autoencoder.fit_generator(generator(training),
+                              steps_per_epoch = len(training),
+                              epochs=epochs,
+                              shuffle=True)
 else:
-    eeg_anomaly = np.asarray(pickle.load(open('anomalyset.pkl', 'rb')))
-    # eeg_anomaly = np.expand_dims(eeg_anomaly[0], axis=0)
-    print(autoencoder.test_on_batch(eeg_anomaly, eeg_anomaly))
+    anomaly = pickle.load(open(anom_fname, 'rb'))[np.random.randint(500)]
+    plot_trajectory([anomaly])
+    anomaly = np.expand_dims(np.array(anomaly), axis=0)
+    print(autoencoder.test_on_batch(anomaly, [0]))
 
 
 # TESTING
 
-# data = K.variable(np.expand_dims(eeg_train[0], axis=0))
+# data = np.asarray(pickle.load(open(test_fname, 'rb')))
+# data = K.variable(np.expand_dims(data[0], axis=0))
 # print(np.shape(data))
-# print(K.int_shape(autoencoder(data)))
+# print(K.eval(autoencoder(data)))
 
 stop = time.time()
 print(stop - start)
-if train: autoencoder.save(fname)
+if train: autoencoder.save(model_fname)

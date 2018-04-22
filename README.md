@@ -61,6 +61,12 @@ To gather realistic data, I decided to run an object detection network on the [U
 
 Since most human trajectories can easily be modelled with a vector and some "noise" - a little variation in direction -, the model is quite simple, and straightforward to implement. The resulting training dataset has 10 000 random generated records, with variable length trajectories and no anomalies. 
 
+### Recurrent layer before convnet autoencoder
+
+To handle the variable-length data, I built a recurrent layer on top of the autoencoder showed before. This layer consists of 128 GRU cells, and shares the training loss function of the autoencoder. 
+
+When I first tried training it, it didn't pass the anomaly detection test, as it had very small differences between the loss on anomalous records and normal ones. 
+
 
 
 
