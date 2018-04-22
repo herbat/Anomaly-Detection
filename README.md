@@ -48,3 +48,21 @@ After a bit of tuning, I arrived at the following architecture:
 - 1D convolution to transform back to the original data shape
 
 This model had an average testing loss of `0.0088`, and anomaly loss of `0.087`, differing by an order of magnitude. Although this could surely be improved, I decided to take on other datasets, and tweak the model according to my findings.
+
+## New data: Trajectories
+
+As the network got quite good anomaly to normal loss ratios on random generated EEG data, it was time to try it on other datasets. Trajectories were chosen because it has real world applications. 
+
+### Recording trajectories from video data
+
+To gather realistic data, I decided to run an object detection network on the [UCSD Anomaly Dataset](http://www.svcl.ucsd.edu/projects/anomaly/dataset.htm), which consists of 98 videos, all 200 frames in length. For the object detection, I chose [YOLO](https://pjreddie.com/darknet/yolo/), a complex convolutional neural network, which was pretrained for object detection. Since YOLO is written in C, and built on DarkNet, a neural network framework - also written in C -, I used a DarkNet API for python called [LightNet](https://github.com/explosion/lightnet). I implemented a tracking algorithm, which is not very sophisticated, but usable. Unfortunately, these pictures are `373 × 248` in resolution, and this caused the network to be somewhat unreliable. Since my tracking algorithm wasn't refined for such scenarios, it failed in reliably recording the trajectories properly (which you can see in the following image). This led me to another approach. ![fail](https://github.com/herbat/Anomaly-Detection/blob/master/failure.png) 
+
+### Randomly generated trajectories
+
+
+
+
+
+
+
+
