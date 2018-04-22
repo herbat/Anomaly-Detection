@@ -59,7 +59,7 @@ To gather realistic data, I decided to run an object detection network on the [U
 
 ### Randomly generated trajectories
 
-
+Since most human trajectories can easily be modelled with a vector and some "noise" - a little variation in direction -, the model is quite simple, and straightforward to implement. The resulting training dataset has 10 000 random generated records, with variable length trajectories and no anomalies. 
 
 
 
